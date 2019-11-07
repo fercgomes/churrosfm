@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "../lib/MIDI/MIDI.h"
+#include <MIDI.h>
 #include "Waveforms.h"
 #include "FCW_Table.h"
 #include "noteList.h"
