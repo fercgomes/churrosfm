@@ -1,5 +1,4 @@
-#ifndef OSCLIST_H
-#define OSCLIST_H
+#pragma once
 
 template<typename T>
 class PolyphonicContainer {
@@ -33,6 +32,7 @@ class PolyphonicContainer {
 
           osc->setActive();
           osc->setNote(midiNote);
+          (osc->carrier)->setGate(true);
         }
       }
 
@@ -50,6 +50,7 @@ class PolyphonicContainer {
         osc = ptr[i];
         if(osc->getNote() == midiNote) {
           osc->unsetActive();
+          (osc->carrier)->setGate(false);
           found = true;
         }
       }
@@ -57,7 +58,7 @@ class PolyphonicContainer {
       return found;
     }
 
-    uint16_t getOut() {
+    uint16_t getOutput() {
       T* osc;
       uint16_t output = 0;;
 
@@ -81,5 +82,3 @@ class PolyphonicContainer {
     }
        
 };
-
-#endif

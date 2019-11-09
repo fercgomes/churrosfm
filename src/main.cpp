@@ -1,10 +1,7 @@
 #include <Arduino.h>
 #include <MIDI.h>
-#include "Waveforms.h"
-#include "FCW_Table.h"
 #include "noteList.h"
 #include "Algorithm.h"
-
 #include "PoliphonicContainer.h"
 #include "Operator.h"
 
@@ -21,56 +18,28 @@
 
 MIDI_CREATE_DEFAULT_INSTANCE();
 
-static const unsigned sMaxNumNotes = 8;
-MidiNoteList<sMaxNumNotes> midiNotes;
-
 /* Max polyphony of 8 */
 static const byte maxPoly = 8;
 static PolyphonicContainer<Algorithm> polyphonic;
 
-inline void handleGateChanged(bool inGateActive) {
-}
-
-inline void pulseGate() {
-}
-
-void handleNotesChanged(bool isFirstNote = false) {
-  if (midiNotes.empty()) {
-    handleGateChanged(false);
-  }
-  else {
-    byte currentNote = 0;
-
-    for(int i = 0; i < midiNotes.size(); i++) {
-      if(midiNotes.get(i, currentNote))
-        Serial.println(currentNote);
-    }
-  }
-}
-
 void handleNoteOn(byte inChannel, byte inNote, byte inVelocity) {
-//  const bool firstNote = midiNotes.empty();
-//  midiNotes.add(MidiNote(inNote, inVelocity));
-//  handleNotesChanged(firstNote);
-
   polyphonic.noteOn(inNote);
-  
+  Serial.println("Note on");
 }
 
 void handleNoteOff(byte inChannel, byte inNote, byte inVelocity) {
-//  midiNotes.remove(inNote);
-//  handleNotesChanged();
-
   polyphonic.noteOff(inNote);
+  Serial.println("Note off");
 }
 
 void setup()
 {
-  Serial.begin(19200);
+  Serial.begin(9600);
 
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
   pinMode(A2, INPUT);
+  pinMode(A3, INPUT);
  
   /* Set up MIDI */
   MIDI.setHandleNoteOn(handleNoteOn);
@@ -104,13 +73,9 @@ void setup()
   NVIC_EnableIRQ(TC7_IRQn);
 }
 
-static uint8_t pot1;
-
 void loop()
 {
   MIDI.read();
-
-  pot1 = map(analogRead(A0), 0, 1024, 0, 15);
 }
  
 void TC7_Handler()
@@ -118,8 +83,10 @@ void TC7_Handler()
   TC_GetStatus(TC2, 1);
   
   uint16_t output = 0;
-  output = polyphonic.getOut();
+  output = polyphonic.getOutput();
   
   analogWriteResolution(12);
   analogWrite(DAC1, output);
+
+  /* Process phase increments */
 }

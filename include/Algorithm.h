@@ -1,8 +1,8 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include "Note.h"
 #include "Operator.h"
+#include "EnvelopeGenerator.h"
 
 #define MAX_OPERATORS 6
 
@@ -10,20 +10,19 @@
  * Implements a routing within Oscillators.
  */
 class Algorithm {
-  private:
+  public:
+
     Operator* modulator;
     Operator* carrier;
 
-  public:
     Algorithm() {
       modulator = new Operator();
       carrier = new Operator();
+      modulator->envelope.setActive(false);
     }
   
     uint16_t process() {
-      modulator->setFrequencyModulation(0);
-      carrier->setFrequencyModulation( modulator->process() );
-      return carrier->process();
+      return carrier->process( modulator->process(0) );
     }
 
     void setNote(byte note) {
